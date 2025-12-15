@@ -26,24 +26,8 @@ SECRET_KEY = 'django-insecure-ssa2_8=h0r2r=ms*-$m!y^yfa@+*lp&uw!_b%^)d(t3_=34cv%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://prepared-jasmine-ohonlymyself-ef5a908c.koyeb.app',
-    'http://prepared-jasmine-ohonlymyself-ef5a908c.koyeb.app',
-]
+ALLOWED_HOSTS = []
 
-# 关闭CSRF安全设置（临时方案）
-CSRF_COOKIE_SECURE = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SAMESITE = 'Lax'
-
-# 允许所有主机（临时方案）
-ALLOWED_HOSTS = ['*']
-
-# 如果前端和后端不同域，需要设置CORS
-CORS_ALLOWED_ORIGINS = [
-    'https://prepared-jasmine-ohonlymyself-ef5a908c.koyeb.app',
-]
 
 # Application definition
 
@@ -68,7 +52,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-   # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
