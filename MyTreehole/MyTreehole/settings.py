@@ -26,21 +26,19 @@ SECRET_KEY = 'django-insecure-ssa2_8=h0r2r=ms*-$m!y^yfa@+*lp&uw!_b%^)d(t3_=34cv%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-
-
 CSRF_TRUSTED_ORIGINS = [
     'https://prepared-jasmine-ohonlymyself-ef5a908c.koyeb.app',
     'http://prepared-jasmine-ohonlymyself-ef5a908c.koyeb.app',
 ]
 
-# Cookie设置（HTTPS环境）
-CSRF_COOKIE_SECURE = True  # 只在HTTPS连接中发送CSRF cookie
-SESSION_COOKIE_SECURE = True  # 只在HTTPS连接中发送session cookie
-CSRF_COOKIE_SAMESITE = 'Lax'  # 或 'None' 如果需要跨站
+# 关闭CSRF安全设置（临时方案）
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SAMESITE = 'Lax'
-CSRF_COOKIE_HTTPONLY = False  # 允许JavaScript访问CSRF token（Django默认）
-SESSION_COOKIE_HTTPONLY = True  # 防止JavaScript访问session cookie
+
+# 允许所有主机（临时方案）
+ALLOWED_HOSTS = ['*']
 
 # 如果前端和后端不同域，需要设置CORS
 CORS_ALLOWED_ORIGINS = [
