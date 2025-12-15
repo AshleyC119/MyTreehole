@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}登录 - MyTreehole{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-lg">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">
+                    <i class="fas fa-sign-in-alt text-primary"></i> 登录 MyTreehole
+                </h2>
+
+                <!-- 错误消息显示 -->
+                {% if form.errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>登录失败！</strong>
+                    {% if form.non_field_errors %}
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    {% else %}
+                        请检查您的用户名和密码。
+                    {% endif %}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+
+                <!-- 成功消息（比如注册成功后重定向到登录页） -->
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if message.tags == 'success' %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle"></i> {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+                <form method="POST" id="login-form">
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        <label for="id_username" class="form-label">
+                            <i class="fas fa-user"></i> 用户名或邮箱
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            {{ form.username }}
+                        </div>
+                        {% if form.username.errors %}
+                        <div class="text-danger small mt-1">
+                            <i class="fas fa-exclamation-circle"></i> {{ form.username.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="id_password" class="form-label">
+                            <i class="fas fa-lock"></i> 密码
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            {{ form.password }}
+                            <button class="btn btn-outline-secondary" type="button" id="toggle-password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        {% if form.password.errors %}
+                        <div class="text-danger small mt-1">
+                            <i class="fas fa-exclamation-circle"></i> {{ form.password.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- 记住我选项 -->
+                    <div class="mb-4 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember-me" name="remember_me">
+                        <label class="form-check-label" for="remember-me">记住我</label>
+                    </div>
+
+                    <div class="d-grid gap-2 mb-4">
+                        <button class="btn btn-primary btn-lg" type="submit">
+                            <i class="fas fa-sign-in-alt"></i> 登录
+                        </button>
+                    </div>
+                </form>
+
+                <!-- 其他选项 -->
+                <div class="border-top pt-3">
+                    <div class="text-center">
+                        <p class="mb-2">
+                            <a href="{% url 'register' %}" class="text-decoration-none">
+                                <i class="fas fa-user-plus"></i> 还没有账号？立即注册
+                            </a>
+                        </p>
+                        <p class="mb-2">
+                            <a href="#" class="text-decoration-none text-muted" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">
+                                <i class="fas fa-question-circle"></i> 忘记密码？
+                            </a>
+                        </p>
+                        <p class="mb-0">
+                            <a href="{% url 'home' %}" class="text-decoration-none text-muted">
+                                <i class="fas fa-home"></i> 返回首页
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 提示信息 -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="fas fa-lightbulb text-warning"></i> 登录提示
+                </h6>
+                <ul class="list-unstyled mb-0">
+                    <li><small><i class="fas fa-check text-success"></i> 请使用您注册时填写的用户名或邮箱登录</small></li>
+                    <li><small><i class="fas fa-check text-success"></i> 密码区分大小写，请检查Caps Lock键</small></li>
+                    <li><small><i class="fas fa-check text-success"></i> 如果是管理员账号，请确保账户已激活</small></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 忘记密码模态框 -->
+<div class="modal fade" id="forgotPasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">忘记密码</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>密码重置功能正在开发中...</p>
+                <p>如果你是管理员，请联系系统管理员重置密码。</p>
+                <p>如果你是普通用户，请尝试使用注册邮箱找回。</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 显示/隐藏密码功能
+    const togglePassword = document.getElementById('toggle-password');
+    const passwordInput = document.getElementById('id_password');
+    const eyeIcon = togglePassword.querySelector('i');
+
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            eyeIcon.classList.toggle('fa-eye');
+            eyeIcon.classList.toggle('fa-eye-slash');
+        });
+    }
+
+    // 自动聚焦到用户名输入框
+    const usernameInput = document.getElementById('id_username');
+    if (usernameInput) {
+        usernameInput.focus();
+    }
+
+    // 表单提交时的简单验证
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(event) {
+            const username = document.getElementById('id_username').value.trim();
+            const password = document.getElementById('id_password').value.trim();
+
+            if (!username || !password) {
+                event.preventDefault();
+                alert('请填写用户名和密码！');
+            }
+        });
+    }
+
+    // 检查URL中的错误参数
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('error')) {
+        // 可以在这里处理特定的错误类型
+        console.log('登录错误:', urlParams.get('error'));
+    }
+});
+</script>
+{% endblock %}

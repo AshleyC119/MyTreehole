@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}MyTreehole - 你的专属树洞{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-4 mb-4">欢迎来到 MyTreehole</h1>
+    <p class="lead mb-4">这是一个安全、私密的社交空间，你可以在这里分享想法、感受和故事</p>
+    
+    <!-- 社区统计信息卡片 -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">社区统计</h3>
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-3">
+                            <div class="stat-card p-3 border rounded">
+                                <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                                <h2 class="stat-number">{{ total_users }}</h2>
+                                <p class="text-muted mb-0">注册用户</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="stat-card p-3 border rounded">
+                                <i class="fas fa-newspaper fa-2x text-success mb-2"></i>
+                                <h2 class="stat-number">{{ total_posts }}</h2>
+                                <p class="text-muted mb-0">帖子总数</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="stat-card p-3 border rounded">
+                                <i class="fas fa-comments fa-2x text-info mb-2"></i>
+                                <h2 class="stat-number">{{ total_comments }}</h2>
+                                <p class="text-muted mb-0">评论总数</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="stat-card p-3 border rounded">
+                                <i class="fas fa-thumbs-up fa-2x text-warning mb-2"></i>
+                                <h2 class="stat-number">{{ total_likes }}</h2>
+                                <p class="text-muted mb-0">点赞总数</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="stat-card p-3 border rounded">
+                                <i class="fas fa-user-clock fa-2x text-danger mb-2"></i>
+                                <h2 class="stat-number">{{ weekly_active_users }}</h2>
+                                <p class="text-muted mb-0">周活跃用户</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if user.is_authenticated %}
+        <!-- 已登录用户的功能卡片 -->
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 shadow">
+                    <div class="card-body text-center">
+                        <i class="fas fa-pen fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">发布帖子</h5>
+                        <p class="card-text">分享你的想法和故事</p>
+                        <a href="{% url 'post_create' %}" class="btn btn-primary">开始写帖</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 shadow">
+                    <div class="card-body text-center">
+                        <i class="fas fa-stream fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">浏览帖子</h5>
+                        <p class="card-text">看看大家都在分享什么</p>
+                        <a href="{% url 'post_list' %}" class="btn btn-success">浏览帖子</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 shadow">
+                    <div class="card-body text-center">
+                        <i class="fas fa-user fa-3x text-info mb-3"></i>
+                        <h5 class="card-title">个人资料</h5>
+                        <p class="card-text">管理你的个人信息</p>
+                        <a href="{% url 'profile' %}" class="btn btn-info">查看资料</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 个人快速统计（仅登录用户可见） -->
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">我的贡献</h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <p class="mb-1"><i class="fas fa-newspaper text-primary"></i> 我发布的帖子</p>
+                                <h4>{{ user.posts.count }}</h4>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="mb-1"><i class="fas fa-comment text-success"></i> 我发表的评论</p>
+                                <h4>{{ user.comment_set.count }}</h4>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="mb-1"><i class="fas fa-thumbs-up text-warning"></i> 我点赞的数量</p>
+                                <h4>{{ user.like_set.count }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <!-- 未登录用户的注册/登录卡片 -->
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h4 class="card-title text-center">加入我们的社区</h4>
+                        <p class="card-text text-center">创建账号，开始你的树洞之旅</p>
+                        <div class="d-grid gap-2 d-md-block text-center">
+                            <a href="{% url 'register' %}" class="btn btn-primary btn-lg me-2 mb-2">
+                                <i class="fas fa-user-plus"></i> 立即注册
+                            </a>
+                            <a href="{% url 'login' %}" class="btn btn-outline-primary btn-lg mb-2">
+                                <i class="fas fa-sign-in-alt"></i> 登录
+                            </a>
+                        </div>
+                        <div class="text-center mt-3">
+                            <small class="text-muted">已经有 {{ total_users }} 位用户加入我们</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- 热门帖子展示（可选功能） -->
+<div class="row mt-5">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-body">
+                <h3 class="card-title mb-4 text-center">
+                    <i class="fas fa-fire text-danger"></i> 热门帖子
+                </h3>
+                {% if user.is_authenticated %}
+                    <div class="text-center">
+                        <p class="text-muted">热门帖子功能正在开发中...</p>
+                        <a href="{% url 'post_list' %}" class="btn btn-outline-primary">
+                            查看所有帖子
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center">
+                        <p class="text-muted">登录后查看最受欢迎的帖子</p>
+                        <a href="{% url 'login' %}" class="btn btn-primary">立即登录</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

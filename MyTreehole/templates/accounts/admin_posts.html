@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}帖子管理 - MyTreehole{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- 侧边栏 -->
+        <div class="col-md-3">
+            {% include 'accounts/admin_sidebar.html' %}
+        </div>
+
+        <!-- 主要内容 -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-newspaper"></i> 帖子管理</h2>
+                <span class="badge bg-primary">共 {{ posts.paginator.count }} 个帖子</span>
+            </div>
+
+            <!-- 搜索表单 -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            {{ search_form.search_type }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ search_form.query }}
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search"></i> 搜索
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 帖子表格 -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>标题</th>
+                                    <th>作者</th>
+                                    <th>内容预览</th>
+                                    <th>发布时间</th>
+                                    <th>点赞/评论</th>
+                                    <th>隐私</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for post in posts %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'post_detail' post.id %}" target="_blank">
+                                            {{ post.title|truncatechars:30 }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'profile' %}?user={{ post.author.username }}">
+                                            {{ post.author.username }}
+                                        </a>
+                                        {% if post.author.is_superuser %}
+                                            <span class="badge bg-danger">管理员</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ post.content|striptags|truncatechars:50 }}</td>
+                                    <td>{{ post.created_at|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        <span class="badge bg-success">{{ post.likes_count }} 赞</span>
+                                        <span class="badge bg-info">{{ post.comments_count }} 评论</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if post.privacy == 'public' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                            {{ post.get_privacy_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'admin_delete_post' post.id %}?from_admin=1"
+                                           class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('确定要删除这个帖子吗？')">
+                                            <i class="fas fa-trash"></i> 删除
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center">暂无帖子数据</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 分页 -->
+                    {% if posts.has_other_pages %}
+                    <nav aria-label="帖子分页">
+                        <ul class="pagination justify-content-center">
+                            {% if posts.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ posts.previous_page_number }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}" aria-label="上一页">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&laquo;</span>
+                                </li>
+                            {% endif %}
+
+                            {% for i in posts.paginator.page_range %}
+                                {% if posts.number == i %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ i }}</span>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ i }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}">{{ i }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if posts.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ posts.next_page_number }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}" aria-label="下一页">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&raquo;</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

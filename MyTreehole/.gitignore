@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+env/
+.venv/
+myenv/  # 如果你本地虚拟环境叫这个或其他名字，请加上
+
+# Django
+*.log
+local_settings.py
+db.sqlite3  # 你的本地数据库，一定不要上传！
+
+# Media files (用户上传的)
+media/
+
+# IDE - PyCharm
+.idea/
+*.iml
+*.iws
+
+# 操作系统
+.DS_Store
+Thumbs.db

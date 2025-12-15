@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}管理员仪表板 - MyTreehole{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- 侧边栏 -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-user-shield text-primary"></i> 管理员面板
+                    </h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <a href="{% url 'admin_dashboard' %}" class="text-decoration-none">
+                                <i class="fas fa-tachometer-alt"></i> 仪表板
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{% url 'admin_users' %}" class="text-decoration-none">
+                                <i class="fas fa-users"></i> 用户管理
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{% url 'admin_posts' %}" class="text-decoration-none">
+                                <i class="fas fa-newspaper"></i> 帖子管理
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="/admin/" class="text-decoration-none" target="_blank">
+                                <i class="fas fa-cog"></i> Django后台
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">管理员信息</h6>
+                    <p class="mb-1"><strong>用户名：</strong>{{ user.username }}</p>
+                    <p class="mb-1"><strong>邮箱：</strong>{{ user.email }}</p>
+                    <p class="mb-1"><strong>最后登录：</strong>{{ user.last_login|date:"Y-m-d H:i" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主要内容 -->
+        <div class="col-md-9">
+            <h2 class="mb-4">
+                <i class="fas fa-tachometer-alt"></i> 管理员仪表板
+            </h2>
+            
+            <!-- 统计卡片 -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-white bg-primary">
+                        <div class="card-body">
+                            <h6 class="card-title">总用户数</h6>
+                            <h3>{{ stats.total_users }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-success">
+                        <div class="card-body">
+                            <h6 class="card-title">总帖子数</h6>
+                            <h3>{{ stats.total_posts }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-warning">
+                        <div class="card-body">
+                            <h6 class="card-title">总评论数</h6>
+                            <h3>{{ stats.total_comments }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-danger">
+                        <div class="card-body">
+                            <h6 class="card-title">被禁言用户</h6>
+                            <h3>{{ stats.muted_users }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 最近注册用户 -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-user-plus"></i> 最近注册用户
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>用户名</th>
+                                    <th>邮箱</th>
+                                    <th>注册时间</th>
+                                    <th>最后登录</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in recent_users %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'profile' %}?user={{ user.username }}">
+                                            {{ user.username }}
+                                        </a>
+                                        {% if user.is_superuser %}
+                                            <span class="badge bg-danger">管理员</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.date_joined|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        {% if user.last_login %}
+                                            {{ user.last_login|date:"Y-m-d H:i" }}
+                                        {% else %}
+                                            从未登录
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if not user.is_superuser %}
+                                            <a href="{% url 'toggle_user_mute' user.id %}" class="btn btn-sm btn-outline-warning">
+                                                {% if user.profile.is_muted %}
+                                                    解除禁言
+                                                {% else %}
+                                                    禁言
+                                                {% endif %}
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">暂无用户数据</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 最近帖子 -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-newspaper"></i> 最近帖子
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>标题</th>
+                                    <th>作者</th>
+                                    <th>发布时间</th>
+                                    <th>点赞数</th>
+                                    <th>评论数</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for post in recent_posts %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'post_detail' post.id %}">
+                                            {{ post.title|truncatechars:30 }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'profile' %}?user={{ post.author.username }}">
+                                            {{ post.author.username }}
+                                        </a>
+                                    </td>
+                                    <td>{{ post.created_at|date:"Y-m-d H:i" }}</td>
+                                    <td>{{ post.likes_count }}</td>
+                                    <td>{{ post.comments_count }}</td>
+                                    <td>
+                                        <a href="{% url 'admin_delete_post' post.id %}?from_admin=1" 
+                                           class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('确定要删除这个帖子吗？')">
+                                            删除
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">暂无帖子数据</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

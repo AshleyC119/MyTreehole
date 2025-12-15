@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}用户管理 - MyTreehole{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- 侧边栏 -->
+        <div class="col-md-3">
+            {% include 'accounts/admin_sidebar.html' %}
+        </div>
+        
+        <!-- 主要内容 -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-users"></i> 用户管理</h2>
+                <span class="badge bg-primary">共 {{ users.paginator.count }} 个用户</span>
+            </div>
+            
+            <!-- 搜索表单 -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            {{ search_form.search_type }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ search_form.query }}
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search"></i> 搜索
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- 用户表格 -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>用户名</th>
+                                    <th>邮箱</th>
+                                    <th>注册时间</th>
+                                    <th>最后登录</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user_obj in users %}
+                                <tr>
+                                    <td>{{ user_obj.id }}</td>
+                                    <td>
+                                        <a href="{% url 'profile' %}?user={{ user_obj.username }}">
+                                            {{ user_obj.username }}
+                                        </a>
+                                        {% if user_obj.is_superuser %}
+                                            <span class="badge bg-danger">管理员</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ user_obj.email }}</td>
+                                    <td>{{ user_obj.date_joined|date:"Y-m-d" }}</td>
+                                    <td>
+                                        {% if user_obj.last_login %}
+                                            {{ user_obj.last_login|date:"Y-m-d H:i" }}
+                                        {% else %}
+                                            <span class="text-muted">从未登录</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if user_obj.profile.is_muted %}
+                                            <span class="badge bg-danger">已禁言</span>
+                                            {% if user_obj.profile.mute_reason %}
+                                                <br><small>原因: {{ user_obj.profile.mute_reason|truncatechars:20 }}</small>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge bg-success">正常</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if not user_obj.is_superuser %}
+                                            <a href="{% url 'toggle_user_mute' user_obj.id %}" 
+                                               class="btn btn-sm {% if user_obj.profile.is_muted %}btn-success{% else %}btn-warning{% endif %}">
+                                                {% if user_obj.profile.is_muted %}
+                                                    <i class="fas fa-volume-up"></i> 解除禁言
+                                                {% else %}
+                                                    <i class="fas fa-volume-mute"></i> 禁言
+                                                {% endif %}
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted">不可操作</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center">暂无用户数据</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 分页 -->
+                    {% if users.has_other_pages %}
+                    <nav aria-label="用户分页">
+                        <ul class="pagination justify-content-center">
+                            {% if users.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ users.previous_page_number }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}" aria-label="上一页">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&laquo;</span>
+                                </li>
+                            {% endif %}
+                            
+                            {% for i in users.paginator.page_range %}
+                                {% if users.number == i %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ i }}</span>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ i }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}">{{ i }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if users.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ users.next_page_number }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}" aria-label="下一页">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&raquo;</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

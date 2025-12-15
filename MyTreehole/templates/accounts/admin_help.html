@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}管理员登录帮助 - MyTreehole{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">
+                    <i class="fas fa-user-shield text-danger"></i> 管理员登录帮助
+                </h2>
+                
+                <div class="alert alert-info">
+                    <h5><i class="fas fa-info-circle"></i> 常见问题</h5>
+                </div>
+                
+                <div class="accordion" id="adminHelpAccordion">
+                    <!-- 问题1 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                <i class="fas fa-key text-warning"></i> 忘记管理员密码怎么办？
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show">
+                            <div class="accordion-body">
+                                <h6>通过命令行重置密码：</h6>
+                                <ol>
+                                    <li>打开命令行，进入项目目录</li>
+                                    <li>激活虚拟环境：<code>ll_env\Scripts\activate</code></li>
+                                    <li>运行：<code>python manage.py changepassword 用户名</code></li>
+                                    <li>按提示输入新密码两次</li>
+                                </ol>
+                                
+                                <h6>通过Django Shell重置：</h6>
+                                <pre><code>python manage.py shell
+from django.contrib.auth.models import User
+user = User.objects.get(username='admin')
+user.set_password('新密码')
+user.save()
+exit()</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 问题2 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                <i class="fas fa-user-times text-danger"></i> 管理员账户被锁定怎么办？
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse">
+                            <div class="accordion-body">
+                                <p>如果管理员账户被锁定（is_active=False），可以通过Django Shell解锁：</p>
+                                <pre><code>python manage.py shell
+from django.contrib.auth.models import User
+user = User.objects.get(username='admin')
+user.is_active = True
+user.save()
+print(f"账户 {user.username} 已激活")
+exit()</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 问题3 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                <i class="fas fa-user-plus text-success"></i> 如何创建新的管理员账户？
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse">
+                            <div class="accordion-body">
+                                <p>通过命令行创建新的超级用户：</p>
+                                <pre><code>python manage.py createsuperuser</code></pre>
+                                <p>按提示输入用户名、邮箱和密码。</p>
+                                <p class="text-muted">注意：确保新账户的 <code>is_superuser</code> 和 <code>is_staff</code> 都为 True。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h5><i class="fas fa-terminal text-secondary"></i> 检查管理员账户状态</h5>
+                    <p>在命令行中运行以下命令检查所有管理员账户：</p>
+                    <pre><code>python manage.py shell
+from django.contrib.auth.models import User
+admins = User.objects.filter(is_superuser=True)
+for admin in admins:
+    print(f"用户名: {admin.username}, 邮箱: {admin.email}")
+    print(f"  is_active: {admin.is_active}, is_staff: {admin.is_staff}")
+    print()
+exit()</code></pre>
+                </div>
+                
+                <div class="mt-4 border-top pt-3">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <a href="{% url 'login' %}" class="btn btn-primary me-md-2">
+                            <i class="fas fa-sign-in-alt"></i> 返回登录页面
+                        </a>
+                        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-home"></i> 返回首页
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

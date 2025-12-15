@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if is_muted %}解除禁言{% else %}禁言用户{% endif %} - MyTreehole{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">
+                    {% if is_muted %}
+                        <i class="fas fa-volume-up text-success"></i> 解除禁言
+                    {% else %}
+                        <i class="fas fa-volume-mute text-warning"></i> 禁言用户
+                    {% endif %}
+                </h2>
+                
+                <div class="alert {% if is_muted %}alert-success{% else %}alert-warning{% endif %}">
+                    <h5>
+                        {% if is_muted %}
+                            即将解除用户 <strong>{{ target_user.username }}</strong> 的禁言
+                        {% else %}
+                            即将禁言用户 <strong>{{ target_user.username }}</strong>
+                        {% endif %}
+                    </h5>
+                    <p class="mb-0">
+                        注册时间: {{ target_user.date_joined|date:"Y-m-d H:i" }}<br>
+                        最后登录: {% if target_user.last_login %}{{ target_user.last_login|date:"Y-m-d H:i" }}{% else %}从未登录{% endif %}
+                    </p>
+                </div>
+                
+                {% if is_muted and target_user.profile.mute_reason %}
+                <div class="alert alert-info">
+                    <h6>当前禁言原因:</h6>
+                    <p>{{ target_user.profile.mute_reason }}</p>
+                    {% if target_user.profile.muted_until %}
+                        <p>禁言截止: {{ target_user.profile.muted_until|date:"Y-m-d H:i" }}</p>
+                    {% else %}
+                        <p>永久禁言</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    {% if not is_muted %}
+                    <div class="mb-3">
+                        {{ form|crispy }}
+                    </div>
+                    {% else %}
+                    <input type="hidden" name="duration" value="0">
+                    <input type="hidden" name="reason" value="解除禁言">
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn {% if is_muted %}btn-success{% else %}btn-warning{% endif %} btn-lg">
+                            {% if is_muted %}
+                                <i class="fas fa-check-circle"></i> 确认解除禁言
+                            {% else %}
+                                <i class="fas fa-ban"></i> 确认禁言
+                            {% endif %}
+                        </button>
+                        <a href="{% url 'admin_users' %}" class="btn btn-outline-secondary">取消</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6 class="card-title">操作记录</h6>
+                <ul class="list-unstyled mb-0">
+                    <li><small><i class="fas fa-info-circle text-info"></i> 此操作将被记录在管理员日志中</small></li>
+                    <li><small><i class="fas fa-exclamation-triangle text-warning"></i> 请谨慎操作，特别是永久禁言</small></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

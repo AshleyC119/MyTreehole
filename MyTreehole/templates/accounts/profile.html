@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}个人资料 - MyTreehole{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}" alt="头像" class="rounded-circle mb-3" width="150" height="150">
+                {% else %}
+                    <img src="/media/avatars/default.png" alt="默认头像" class="rounded-circle mb-3" width="150" height="150">
+                {% endif %}
+                <h4>{{ user.username }}</h4>
+                <p class="text-muted">{{ user.email }}</p>
+                <div class="mt-3">
+                    <p><strong>简介：</strong>{{ user.profile.bio|default:"还没有写简介" }}</p>
+                    <p><strong>地区：</strong>{{ user.profile.location|default:"未设置" }}</p>
+                    {% if user.profile.birth_date %}
+                        <p><strong>生日：</strong>{{ user.profile.birth_date|date:"Y-m-d" }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title mb-4">编辑个人资料</h3>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <h5>账户信息</h5>
+                        {{ u_form|crispy }}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5>个人资料</h5>
+                        {{ p_form|crispy }}
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary btn-lg" type="submit">更新资料</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">账户统计</h5>
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <div class="p-3">
+                            <h3>{{ user.posts.count }}</h3>
+                            <p class="text-muted">发布的帖子</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3">
+                            <h3>{{ user.comment_set.count }}</h3>
+                            <p class="text-muted">发布的评论</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3">
+                            <h3>{{ user.like_set.count }}</h3>
+                            <p class="text-muted">点赞数量</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

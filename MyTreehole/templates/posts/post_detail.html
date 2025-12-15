@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ post.title }} - MyTreehole{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <!-- 帖子内容 -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h1 class="card-title">{{ post.title }}</h1>
+                <div class="d-flex justify-content-between mb-3">
+                    <div>
+                        <small class="text-muted">
+                            <i class="fas fa-user"></i> {{ post.author.username }} |
+                            <i class="fas fa-clock"></i> {{ post.created_at|date:"Y-m-d H:i" }}
+                            {% if post.updated_at != post.created_at %}
+                                | <i class="fas fa-edit"></i> 编辑于 {{ post.updated_at|date:"Y-m-d H:i" }}
+                            {% endif %}
+                        </small>
+                    </div>
+                    <div>
+                        <span class="badge bg-secondary">{{ post.get_privacy_display }}</span>
+                    </div>
+                </div>
+                
+                <div class="card-text mb-4">
+                    {{ post.content|linebreaks }}
+                </div>
+                
+                <!-- 点赞和操作按钮 -->
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <form method="post" action="{% url 'toggle_like' post.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-thumbs-up"></i>
+                                点赞 {% if post.likes_count > 0 %}({{ post.likes_count }}){% endif %}
+                            </button>
+                        </form>
+                        
+                        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#commentForm">
+                            <i class="fas fa-comment"></i> 评论 {% if post.comments_count > 0 %}({{ post.comments_count }}){% endif %}
+                        </button>
+                    </div>
+                    
+                    {% if user == post.author %}
+                    <div>
+                        <a href="{% url 'post_update' post.pk %}" class="btn btn-outline-warning btn-sm">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a href="{% url 'post_delete' post.pk %}" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <!-- 管理员操作 -->
+                    {% if user.is_superuser and user != post.author %}
+                            <div>
+                                <a href="{% url 'admin_delete_post' post.id %}"
+                                    class="btn btn-outline-danger btn-sm"
+                                    onclick="return confirm('确定要以管理员身份删除这个帖子吗？')">
+                                    <i class="fas fa-trash"></i> 管理员删除
+                                </a>
+
+                                {% if post.author.profile.is_muted %}
+                                    <span class="badge bg-danger ms-2">已禁言</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+        
+        <!-- 评论表单 -->
+        <div class="collapse mb-4" id="commentForm">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">发表评论</h5>
+                    <form method="post" action="{% url 'add_comment' post.id %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <textarea name="content" class="form-control" rows="3"
+                                      placeholder="写下你的评论..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">发布评论</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 评论列表 -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">评论 ({{ post.comments_count }})</h5>
+                
+                {% if post.comments.all %}
+                    {% for comment in post.comments.all %}
+                    <div class="comment mb-3 pb-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong>{{ comment.author.username }}</strong>
+                                <small class="text-muted ms-2">{{ comment.created_at|date:"Y-m-d H:i" }}</small>
+                            </div>
+                            {% if user == comment.author or user == post.author %}
+                            <form method="post" action="{% url 'delete_comment' comment.id %}" 
+                                  onsubmit="return confirm('确定要删除这条评论吗？');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                        <p class="mt-2 mb-0">{{ comment.content|linebreaks }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">还没有评论，快来发表第一条评论吧！</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- 侧边栏 -->
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">帖子信息</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>作者</span>
+                        <span>{{ post.author.username }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>发布时间</span>
+                        <span>{{ post.created_at|date:"Y-m-d H:i" }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>点赞数</span>
+                        <span>{{ post.likes_count }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>评论数</span>
+                        <span>{{ post.comments_count }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>隐私设置</span>
+                        <span>{{ post.get_privacy_display }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">相关操作</h5>
+                <a href="{% url 'post_create' %}" class="btn btn-primary w-100 mb-2">
+                    <i class="fas fa-plus"></i> 发布新帖子
+                </a>
+                <a href="{% url 'post_list' %}" class="btn btn-outline-secondary w-100 mb-2">
+                    <i class="fas fa-list"></i> 返回帖子列表
+                </a>
+                {% if user.is_authenticated and user != post.author %}
+                    <a href="#" class="btn btn-outline-success w-100 mb-2">
+                        <i class="fas fa-user-plus"></i> 关注作者
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 自动展开评论表单，如果URL中有#comment锚点
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.location.hash === '#comment') {
+        var commentForm = new bootstrap.Collapse(document.getElementById('commentForm'));
+        commentForm.show();
+    }
+});
+</script>
+{% endblock %}
