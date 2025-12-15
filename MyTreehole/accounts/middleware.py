@@ -3,6 +3,25 @@ from django.contrib import messages
 from django.utils import timezone
 
 
+class CsrfExemptForDebugMiddleware:
+    """
+    开发环境下禁用CSRF的中间件（仅用于调试）
+    生产环境不要使用！
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # 如果是POST请求且路径为登录或注册，检查是否需要临时禁用CSRF
+        # 注意：这仅用于调试，生产环境应移除
+        if request.method == 'POST' and request.path in ['/login/', '/register/']:
+            setattr(request, '_dont_enforce_csrf_checks', True)
+
+        response = self.get_response(request)
+        return response
+
+
 class MuteCheckMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
