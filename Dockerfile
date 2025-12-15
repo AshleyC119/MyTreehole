@@ -1,5 +1,5 @@
 # 基于python镜像
-FROM python:3.11-slim
+FROM python:3.14-slim
 # 设置工作目录为 /app
 WORKDIR /app
 # 将“子项目目录”中的所有代码复制到容器的 /app 下
